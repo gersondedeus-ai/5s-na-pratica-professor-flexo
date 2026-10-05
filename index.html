@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#047857">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>5S Professor Flexo</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23047857'/%3E%3Ctext x='50' y='68' font-size='55' font-weight='bold' text-anchor='middle' fill='white' font-family='sans-serif'%3E5S%3C/text%3E%3C/svg%3E">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;background:#f1f5f9;color:#1e293b;height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+input,select,textarea{font:inherit}
+table{width:100%;border-collapse:collapse}
+canvas{display:block}
+main{flex:1;overflow-y:auto;padding:1rem}
+.app-head{background:#047857;color:#fff;padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.brand{font-weight:800;font-size:1.1rem;color:#fff}
+.pill{background:#fff;color:#047857;font-size:.75rem;padding:.25rem .75rem;border-radius:9999px;font-weight:700}
+.offline-bar{display:none;background:#dc2626;color:#fff;font-size:.75rem;text-align:center;padding:.25rem;font-weight:700}
+body.offline .offline-bar{display:block}
+.hero{background:linear-gradient(135deg,#059669,#0f766e);border-radius:1rem;padding:1.5rem;color:#fff;box-shadow:0 8px 20px rgba(0,0,0,.25);margin-bottom:1rem}
+.logo-box{background:#fff;border-radius:1rem;border:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,.15);padding:.75rem;margin-bottom:1rem;text-align:center}
+.logo-box img{max-width:100%;height:auto;max-height:90px}
+.screen{display:none}
+.screen.active{display:block;animation:fade .2s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.btn{display:block;width:100%;font-weight:700;padding:.75rem 1rem;border-radius:.75rem;box-shadow:0 1px 3px rgba(0,0,0,.25);text-align:center;transition:transform .1s}
+.btn:active{transform:scale(.95)}
+.inp{display:block;width:100%;border:1px solid #cbd5e1;border-radius:.5rem;padding:.5rem;font-size:.875rem;background:#fff;color:#1e293b}
+.card{background:#fff;border-radius:1rem;box-shadow:0 1px 3px rgba(0,0,0,.15);border:1px solid #e2e8f0;padding:1rem}
+.score-btn{width:44px;height:44px;border-radius:50%;border:2px solid #cbd5e1;font-weight:700;font-size:.9rem;background:#fff;color:#475569;touch-action:manipulation}
+.score-btn.sel{border-color:#059669;background:#059669;color:#fff}
+#toast{position:fixed;bottom:1rem;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;font-size:.875rem;padding:.5rem 1rem;border-radius:9999px;box-shadow:0 8px 20px rgba(0,0,0,.3);z-index:50;max-width:92%;text-align:center}
+.hidden{display:none!important}
+.tab{border:1px solid #cbd5e1;background:#fff;border-radius:9999px;padding:.35rem .75rem;font-size:.75rem;font-weight:700}
+.tab.on{background:#047857;color:#fff;border-color:#047857}
+#tabs{display:flex;gap:.5rem;overflow-x:auto;padding:.5rem 1rem;background:#fff;border-bottom:1px solid #e2e8f0;flex-shrink:0}
+#tabs .tab{white-space:nowrap;flex-shrink:0;padding:.5rem .85rem;font-size:.8rem}
+.flex{display:flex}.flex-col{flex-direction:column}.flex-1{flex:1}.flex-wrap{flex-wrap:wrap}.items-center{align-items:center}.justify-between{justify-content:space-between}
+.grid{display:grid}.grid-cols-2{grid-template-columns:1fr 1fr}.col-span-2{grid-column:span 2}
+.gap-2{gap:.5rem}.gap-3{gap:.75rem}
+.relative{position:relative}.absolute{position:absolute}.shrink-0{flex-shrink:0}.block{display:block}
+.overflow-x-auto{overflow-x:auto}
+.w-full{width:100%}.w-5{width:1.25rem}.h-5{height:1.25rem}.w-20{width:5rem}.h-20{height:5rem}.h-32{height:8rem}.h-full{height:100%}
+.-top-1{top:-.25rem}.-right-1{right:-.25rem}
+.object-cover{object-fit:cover}.mx-auto{margin-left:auto;margin-right:auto}
+.p-2{padding:.5rem}.p-3{padding:.75rem}.p-6{padding:1.5rem}.pb-3{padding-bottom:.75rem}.pl-5{padding-left:1.25rem}
+.mb-1{margin-bottom:.25rem}.mb-2{margin-bottom:.5rem}.mb-3{margin-bottom:.75rem}.mb-4{margin-bottom:1rem}.mb-8{margin-bottom:2rem}
+.mt-1{margin-top:.25rem}.mt-2{margin-top:.5rem}.mt-3{margin-top:.75rem}.mt-4{margin-top:1rem}.my-1{margin:.25rem 0}
+.space-y-1>*+*{margin-top:.25rem}.space-y-2>*+*{margin-top:.5rem}.space-y-3>*+*{margin-top:.75rem}.space-y-4>*+*{margin-top:1rem}
+.text-xs{font-size:.75rem}.text-sm{font-size:.875rem}.text-lg{font-size:1.125rem}.text-2xl{font-size:1.5rem}.text-5xl{font-size:3rem;line-height:1}
+.font-medium{font-weight:500}.font-semibold{font-weight:600}.font-bold{font-weight:700}.font-extrabold{font-weight:800}.font-black{font-weight:900}
+.text-center{text-align:center}.text-left{text-align:left}.text-right{text-align:right}.uppercase{text-transform:uppercase}.underline{text-decoration:underline}
+.list-disc{list-style:disc}.opacity-90{opacity:.9}
+.text-white{color:#fff}.text-slate-400{color:#94a3b8}.text-slate-500{color:#64748b}.text-slate-600{color:#475569}
+.text-emerald-100{color:#d1fae5}.text-emerald-600{color:#059669}.text-emerald-700{color:#047857}
+.text-red-500{color:#ef4444}.text-red-600{color:#dc2626}.text-red-700{color:#b91c1c}.text-amber-600{color:#d97706}
+.bg-white{background:#fff}.bg-slate-800{background:#1e293b}
+.bg-emerald-600{background:#059669}.bg-red-100{background:#fee2e2}.bg-red-600{background:#dc2626}.bg-amber-600{background:#d97706}.bg-sky-600{background:#0284c7}
+.border{border:1px solid #cbd5e1}.border-b{border-bottom:1px solid #e2e8f0}.border-l-4{border-left:4px solid #cbd5e1}
+.border-red-200{border-color:#fecaca}.border-red-600{border-color:#dc2626}.border-emerald-600{border-color:#059669}.border-amber-500{border-color:#f59e0b}
+.rounded{border-radius:.25rem}.rounded-lg{border-radius:.5rem}.rounded-xl{border-radius:.75rem}.rounded-2xl{border-radius:1rem}.rounded-full{border-radius:9999px}
+.shadow{box-shadow:0 1px 3px rgba(0,0,0,.2)}
+@media print{
+  body{height:auto!important;overflow:visible!important;display:block!important}
+  main{overflow:visible!important}
+  body *{visibility:hidden}
+  #print-area,#print-area *{visibility:visible}
+  #print-area{position:absolute;left:0;top:0;width:100%;box-shadow:none}
+  .no-print{display:none!important}
+  tr,img{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+
+<div class="offline-bar">Sem conexão — dados salvos no celular</div>
+
+<header class="app-head no-print">
+  <button onclick="showScreen('home')" class="brand">☰ 5S Professor Flexo</button>
+  <button id="installBtn" class="hidden pill">Instalar</button>
+</header>
+
+<nav id="tabs" class="no-print">
+  <button class="tab" data-s="audit" onclick="showScreen('audit')">📋 Nova Auditoria 5S</button>
+  <button class="tab" data-s="gemba" onclick="showScreen('gemba')">🔍 Gemba Walk</button>
+  <button class="tab" data-s="plan" onclick="showScreen('plan')">✅ Plano de Ação</button>
+  <button class="tab" data-s="history" onclick="showScreen('history')">📊 Histórico / Dashboard</button>
+  <button class="tab" data-s="team" onclick="showScreen('team')">👥 Equipe</button>
+  <button class="tab" data-s="redtag" onclick="showScreen('redtag')">🏷️ Etiqueta Vermelha</button>
+</nav>
+
+<main>
+
+<!-- HOME -->
+<section id="screen-home" class="screen active">
+  <div class="logo-box"><img src="logo.png" alt="Professor Flexo — Consultoria e Treinamentos" onerror="this.parentNode.style.display='none'"></div>
+  <div class="hero">
+    <p class="text-emerald-100 text-sm">Auditoria digital de 5S</p>
+    <h2 class="text-2xl font-black mt-1">Da desordem à excelência operacional</h2>
+    <p class="text-sm mt-2 opacity-90">Funciona offline e sincroniza com a planilha da equipe.</p>
+  </div>
+  <div class="grid grid-cols-2 gap-3">
+    <button onclick="showScreen('audit')" class="btn bg-emerald-600 text-white">📋 Nova Auditoria</button>
+    <button onclick="showScreen('history')" class="btn bg-white border">📊 Histórico / Dashboard</button>
+    <button onclick="showScreen('redtag')" class="btn bg-red-600 text-white">🏷️ Etiqueta Vermelha</button>
+    <button onclick="showScreen('plan')" class="btn bg-white border">✅ Plano de Ação</button>
+    <button onclick="showScreen('gemba')" class="btn bg-amber-600 text-white col-span-2" style="order:-1;font-size:1.1rem;padding:1rem">🔍 Gemba Walk</button>
+    <button onclick="showScreen('team')" class="btn bg-white border">👥 Equipe</button>
+    <button onclick="sync()" id="syncBtn" class="btn bg-sky-600 text-white">🔄 Sincronizar</button>
+    <button onclick="showScreen('config')" class="btn bg-white border">⚙️ Configurar</button>
+  </div>
+</section>
+
+<!-- AUDITORIA -->
+<section id="screen-audit" class="screen">
+  <div class="card mb-4">
+    <h2 class="font-extrabold text-lg">Nova Auditoria 5S</h2>
+    <p class="text-xs text-slate-500">Escala: 0 = Inexistente · 1 = Incipiente · 2 = Parcial · 3 = Bom · 4 = Excelente</p>
+    <div class="grid grid-cols-2 gap-3 mt-3">
+      <input id="a-auditor" class="inp" placeholder="Auditor">
+      <input id="a-date" type="date" class="inp">
+      <input id="a-empresa" class="inp col-span-2" placeholder="Empresa (ex.: Marc Etiquetas)">
+      <input id="a-area" class="inp col-span-2" placeholder="Área/Posto (ex.: Flexo nº2)">
+      <select id="a-turno" class="inp col-span-2"><option>Manhã</option><option>Tarde</option><option>Noite</option></select>
+    </div>
+  </div>
+  <div id="audit-questions" class="space-y-4"></div>
+  <div class="card mt-4">
+    <h3 class="font-bold mb-2">Fotos do posto <span class="text-xs text-slate-400">(máx. 6)</span></h3>
+    <input type="file" id="a-photos" accept="image/*" multiple class="block w-full text-sm">
+    <div id="a-photo-preview" class="flex gap-2 mt-3 overflow-x-auto"></div>
+  </div>
+  <div class="card mt-4">
+    <h3 class="font-bold mb-2">Conclusão do auditor</h3>
+    <textarea id="a-concl" maxlength="500" rows="3" class="inp" placeholder="Até 500 caracteres"></textarea>
+  </div>
+  <button onclick="finishAudit()" class="btn bg-emerald-600 text-white mt-4 mb-8">Finalizar auditoria</button>
+</section>
+
+<!-- RESULTADO -->
+<section id="screen-result" class="screen">
+  <div id="print-area" class="bg-white p-6 rounded-2xl shadow border">
+    <div class="text-center border-b pb-3 mb-4">
+      <img src="logo.png" alt="Professor Flexo" style="height:56px;width:auto;display:block;margin:0 auto .5rem" onerror="this.style.display='none'">
+      <h2 class="text-2xl font-black text-emerald-700">Relatório de Auditoria 5S</h2>
+      <p class="text-sm text-slate-500" id="r-empresa"></p>
+      <p class="text-sm text-slate-600 mt-1" id="r-header"></p>
+    </div>
+    <div class="text-center mb-4">
+      <p class="text-xs uppercase font-semibold text-slate-500">Nota Geral</p>
+      <div id="r-score" class="text-5xl font-black my-1">0,0</div>
+      <div id="r-status" class="font-bold"></div>
+      <canvas id="r-radar" width="300" height="300" class="mx-auto mt-2"></canvas>
+    </div>
+    <table class="text-sm mb-4">
+      <thead class="bg-slate-800 text-white text-left"><tr><th class="p-2 text-left">Senso</th><th class="p-2 text-left">Nota</th><th class="p-2 text-left">Var.</th><th class="p-2 text-left">Status</th></tr></thead>
+      <tbody id="r-table"></tbody>
+    </table>
+    <div id="r-crit" class="mb-4"></div>
+    <div id="r-obs" class="mb-4 text-sm"></div>
+    <div id="r-concl" class="mb-4 text-sm"></div>
+    <div id="r-photos" class="grid grid-cols-2 gap-2 mb-4"></div>
+    <p class="text-xs text-slate-400 text-center" id="r-foot"></p>
+  </div>
+  <div class="flex gap-3 mt-4 no-print">
+    <button onclick="printReport()" class="btn bg-emerald-600 text-white">🖨️ Imprimir / PDF</button>
+    <button onclick="showScreen('home')" class="btn bg-white border">🏠 Início</button>
+  </div>
+</section>
+
+<!-- HISTÓRICO -->
+<section id="screen-history" class="screen">
+  <h2 class="font-extrabold text-lg mb-3">Histórico e Dashboard</h2>
+  <div id="history-list" class="space-y-3"></div>
+  <button onclick="exportData()" class="btn bg-white border mt-4">📤 Exportar backup (JSON)</button>
+  <button onclick="clearAll()" class="btn bg-red-100 text-red-700 border border-red-200 mt-3">🗑️ Limpar tudo</button>
+</section>
+
+<!-- LISTAS -->
+<section id="screen-redtag" class="screen"><h2 class="font-extrabold text-lg mb-3">Etiqueta Vermelha</h2><div id="rt-form" class="card"></div><div id="rt-list" class="mt-4 space-y-2"></div></section>
+<section id="screen-plan" class="screen"><h2 class="font-extrabold text-lg mb-3">Plano de Ação</h2><div id="pl-form" class="card"></div><div id="pl-list" class="mt-4 space-y-2"></div></section>
+<section id="screen-gemba" class="screen"><h2 class="font-extrabold text-lg mb-3">🔍 Gemba Walk</h2><div id="gb-form" class="card"></div><div id="gb-list" class="mt-4 space-y-2"></div></section>
+
+<!-- EQUIPE -->
+<section id="screen-team" class="screen">
+  <h2 class="font-extrabold text-lg mb-3">Auditorias da equipe</h2>
+  <div id="team-list" class="space-y-3"></div>
+  <button onclick="loadTeam()" class="btn bg-sky-600 text-white mt-4">🔄 Atualizar</button>
+</section>
+
+<!-- CONFIG -->
+<section id="screen-config" class="screen">
+  <h2 class="font-extrabold text-lg mb-3">Configurações</h2>
+  <div class="card space-y-3">
+    <label class="text-xs font-semibold text-slate-500 block">Link do Apps Script (termina em /exec)</label>
+    <input id="cfg-url" class="inp" placeholder="https://script.google.com/macros/s/.../exec">
+    <label class="text-xs font-semibold text-slate-500 block">Código de acesso (igual ao do script)</label>
+    <input id="cfg-token" class="inp" placeholder="marc5s-...">
+    <label class="text-xs font-semibold text-slate-500 block">Seu nome (preenche o auditor)</label>
+    <input id="cfg-nome" class="inp" placeholder="Nome">
+    <label class="text-xs font-semibold text-slate-500 block">Empresa auditada (preenche automaticamente)</label>
+    <input id="cfg-empresa" class="inp" placeholder="Ex.: Marc Etiquetas">
+    <label class="text-xs font-semibold text-slate-500 block">PIN do líder (defina só no celular do líder)</label>
+    <input id="cfg-pin" type="password" inputmode="numeric" class="inp" placeholder="Deixe em branco para manter o atual">
+    <button onclick="saveCfg()" class="btn bg-emerald-600 text-white">Salvar</button>
+  </div>
+  <p class="text-xs text-slate-400 text-center mt-4">5S Professor Flexo · v4.0</p>
+</section>
+
+</main>
+<div id="toast" class="hidden"></div>
+
+<script>
+// ===== BASE =====
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const today = () => new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+const SENSOS = [
+  { key:'seiri', name:'Seiri · Utilização', color:'#dc2626' },
+  { key:'seiton', name:'Seiton · Arrumação', color:'#f97316' },
+  { key:'seiso', name:'Seiso · Limpeza', color:'#2563eb' },
+  { key:'seiketsu', name:'Seiketsu · Padronização', color:'#9333ea' },
+  { key:'shitsuke', name:'Shitsuke · Disciplina', color:'#059669' }
+];
+const QUESTIONS = {
+  seiri: [
+    'O posto está livre de ferramentas, tintas, gabaritos ou insumos sem uso?',
+    'Itens obsoletos ou vencidos são identificados e retirados?',
+    'O posto contém apenas o necessário para a operação atual?',
+    'Materiais em excesso são devolvidos ao estoque imediatamente?',
+    'As áreas de circulação estão livres de obstáculos?'],
+  seiton: [
+    'Ferramentas têm local definido e identificado (painel de sombra)?',
+    'Recipientes de tinta e insumos estão etiquetados e padronizados?',
+    'Tudo volta ao lugar após o uso?',
+    'A demarcação de piso para carrinhos e materiais existe e é respeitada?',
+    'Itens de uso frequente estão ao alcance do operador?'],
+  seiso: [
+    'Máquinas e periféricos são limpos com inspeção de vazamentos e folgas?',
+    'A limpeza é feita de forma preventiva?',
+    'O posto está livre de acúmulo de tinta, pó ou resíduos?',
+    'EPIs e vestuário são mantidos limpos e em bom estado?',
+    'Anomalias encontradas na limpeza são registradas?'],
+  seiketsu: [
+    'Existem instruções de trabalho visuais claras no posto?',
+    'Checklists diários/semanais são utilizados?',
+    'Os padrões de organização estão formalizados e auditáveis?',
+    'A gestão visual permite identificar anomalias rapidamente?',
+    'A padronização foi construída com a participação da equipe?'],
+  shitsuke: [
+    'Os 5 minutos diários de 5S são praticados em todos os turnos?',
+    'Auditorias periódicas acontecem com feedback transparente?',
+    'Cada colaborador cuida do próprio posto de forma autônoma?',
+    'Desvios são corrigidos de imediato?',
+    'O 5S é um hábito da equipe, não uma obrigação?']
+};
+const SN = ['Seiri','Seiton','Seiso','Seiketsu','Shitsuke'];
+const PL_ST = ['Não iniciado','Em andamento','Concluído','Atrasado'];
+const LISTS = {
+  redtags: { p:'rt', bc:'border-red-600', btn:'bg-red-600 text-white', req:'item',
+    f:[['item','t','Item',1],['qtd','n','Qtd'],['local','t','Local'],['resp','t','Responsável',1],
+       ['motivo','s',['Sem uso','Obsoleto','Defeituoso','Em excesso','Não identificado']],
+       ['decisao','s',['Descartar','Reciclar','Redirecionar','Quarentena','Devolver ao estoque']]],
+    title:r=>r.item, l1:r=>`Qtd: ${esc(r.qtd)} · Local: ${esc(r.local)} · Resp: ${esc(r.resp)}`, l2:r=>`Motivo: ${esc(r.motivo)} · Decisão: ${esc(r.decisao)}` },
+  plans: { p:'pl', bc:'border-emerald-600', btn:'bg-emerald-600 text-white', req:'acao',
+    f:[['area','t','Área/Posto',1],['acao','t','Ação',1],['senso','s',SN],['resp','t','Responsável'],
+       ['ini','d','Início'],['fim','d','Prazo'],['status','s',PL_ST,1],
+       ['obs','a','Observações',1]],
+    title:r=>r.acao, l1:r=>`${esc(r.area)} · ${esc(r.senso)} · Resp: ${esc(r.resp)}`, l2:r=>`${fmt(r.ini)} → ${fmt(r.fim)}` },
+  gemba: { p:'gb', bc:'border-amber-500', btn:'bg-amber-600 text-white', req:'achado',
+    f:[['achado','a','Achado / desperdício: o que você viu? *',1],
+       ['local','t','Local'],['equip','t','Equipamento'],
+       ['senso','s',['— Senso —',...SN]],
+       ['grav','s',['— Classificação —','Alta','Média','Baixa']],
+       ['acao','t','Ação proposta',1],
+       ['resp','t','Responsável',1]],
+    photos:true, title:r=>r.obs || r.achado, l1:()=>'', l2:()=>'' }
+};
+const SCREEN_LIST = { redtag:'redtags', plan:'plans', gemba:'gemba' };
+
+let db = { audits:[], redtags:[], plans:[], gemba:[] };
+let cfg = { url:'', token:'', nome:'', empresa:'' };
+let cur = { answers:{}, photos:[] };
+let gbPhotos = [];
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+  loadDB(); cfg = { ...cfg, ...JSON.parse(localStorage.getItem('marc5s_cfg') || '{}') };
+  $('a-date').value = today(); $('a-auditor').value = cfg.nome; $('a-empresa').value = cfg.empresa;
+  Object.keys(LISTS).forEach(buildForm);
+  $('gb-photos').addEventListener('change', addGbPhotos);
+  renderAudit(); updateBadge(); net();
+  addEventListener('online', () => { net(); sync(true); });
+  addEventListener('offline', net);
+  $('a-photos').addEventListener('change', addPhotos);
+  setupInstall();
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+});
+const net = () => document.body.classList.toggle('offline', !navigator.onLine);
+function toast(m) { const t = $('toast'); t.textContent = m; t.classList.remove('hidden'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.add('hidden'), 3000); }
+
+function loadDB() {
+  try { const s = JSON.parse(localStorage.getItem('marc5s_db') || 'null'); if (s) db = { ...db, ...s }; } catch (e) {}
+  ['redtags','plans','gemba'].forEach(k => db[k].forEach((r, i) => {
+    if (!r.id) r.id = Date.now() + i;
+    if (r.cinco) { r.senso = r.cinco; delete r.cinco; }
+  }));
+  db.gemba.forEach(r => { if (!r.status || r.status === 'Aberto') r.status = 'Planejando'; else if (r.status === 'Resolvido') r.status = 'Finalizado'; });
+}
+function saveDB() {
+  try { localStorage.setItem('marc5s_db', JSON.stringify(db)); }
+  catch (e) { alert('Memória do celular cheia. Exporte o backup e limpe os dados antigos.'); }
+  updateBadge();
+}
+function saveCfg() {
+  const np = $('cfg-pin').value.trim();
+  if (np && cfg.pin && hash(np) !== cfg.pin && hash((prompt('PIN atual do líder:') || '').trim()) !== cfg.pin) return toast('PIN atual incorreto');
+  cfg = { url:$('cfg-url').value.trim(), token:$('cfg-token').value.trim(), nome:$('cfg-nome').value.trim(), empresa:$('cfg-empresa').value.trim(), pin: np ? hash(np) : (cfg.pin || '') };
+  $('cfg-pin').value = '';
+  localStorage.setItem('marc5s_cfg', JSON.stringify(cfg));
+  $('a-auditor').value = cfg.nome; $('a-empresa').value = cfg.empresa; toast('Configuração salva'); showScreen('home');
+}
+const fmt = d => { if (!d) return '—'; const [y,m,x] = String(d).split('-'); return x ? `${x}/${m}/${y}` : d; };
+
+// ===== PLANO DE AÇÃO: vínculo com Gemba e prazo vencido =====
+const isLate = p => !!p.fim && p.status !== 'Concluído' && p.fim < today();
+const lateDays = p => Math.max(1, Math.floor((new Date(today()) - new Date(p.fim)) / 864e5));
+const planStatus = p => isLate(p) ? 'Atrasado' : p.status;
+
+function autoPlan(r) {
+  if (r.grav !== 'Alta' || db.plans.some(p => p.origem === r.id)) return false;
+  const hoje = today(), prazo = new Date(Date.now() + 7 * 864e5 - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+  db.plans.unshift({ id:Date.now() + 1, origem:r.id, criado:hoje, synced:false,
+    area:r.local || r.equip || 'Gemba Walk', acao:r.acao || r.achado || 'Tratar achado do Gemba',
+    senso:r.senso || '', resp:r.resp || '', ini:hoje, fim:prazo, status:'Não iniciado',
+    obs:'Origem: Gemba Walk (gravidade Alta). Achado: ' + (r.achado || '—') });
+  return true;
+}
+function plStatus(id, s) {
+  const p = db.plans.find(x => x.id === id); if (!p) return;
+  p.status = s; p.synced = false; p.upd = true; saveDB(); renderList('plans'); sync(true);
+}
+
+// ===== NAVEGAÇÃO =====
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $('screen-' + id).classList.add('active');
+  if (SCREEN_LIST[id]) renderList(SCREEN_LIST[id]);
+  document.querySelectorAll('#tabs .tab').forEach(t => t.classList.toggle('on', t.dataset.s === id));
+  if (id === 'history') renderHistory();
+  if (id === 'team') loadTeam();
+  if (id === 'config') { $('cfg-url').value = cfg.url; $('cfg-token').value = cfg.token; $('cfg-nome').value = cfg.nome; $('cfg-empresa').value = cfg.empresa; }
+  document.querySelector('main').scrollTop = 0;
+}
+
+// ===== AUDITORIA =====
+function renderAudit() {
+  $('audit-questions').innerHTML = '';
+  SENSOS.forEach(s => {
+    const g = document.createElement('div'); g.className = 'card';
+    g.innerHTML = `<h3 class="font-extrabold mb-3" style="color:${s.color}">${s.name}</h3>`;
+    QUESTIONS[s.key].forEach((q, i) => {
+      const id = `${s.key}-${i}`, d = document.createElement('div'); d.className = 'mb-4';
+      d.innerHTML = `<p class="text-sm font-medium mb-2">${i+1}. ${esc(q)}</p><div class="flex gap-2 flex-wrap" id="o-${id}">${[0,1,2,3,4].map(v => `<button type="button" class="score-btn" onclick="pick('${id}',${v})">${v}</button>`).join('')}</div>`;
+      g.appendChild(d);
+    });
+    g.insertAdjacentHTML('beforeend', `<textarea id="obs-${s.key}" rows="2" class="inp" placeholder="Observações de ${s.name.split(' ')[0]} (o que está fora do padrão?)"></textarea>`);
+    $('audit-questions').appendChild(g);
+  });
+}
+function pick(id, v) { cur.answers[id] = v; [...$('o-' + id).children].forEach((b, i) => b.classList.toggle('sel', i === v)); }
+
+function resize(file, max = 900, q = .6) {
+  return new Promise(res => {
+    const img = new Image(), u = URL.createObjectURL(file);
+    img.onload = () => {
+      const k = Math.min(1, max / Math.max(img.width, img.height)), c = document.createElement('canvas');
+      c.width = img.width * k; c.height = img.height * k;
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(u);
+      res(c.toDataURL('image/jpeg', q));
+    };
+    img.src = u;
+  });
+}
+async function addPhotos(e) {
+  for (const f of e.target.files) { if (cur.photos.length >= 6) { toast('Máximo de 6 fotos'); break; } cur.photos.push(await resize(f)); }
+  e.target.value = ''; renderPhotos();
+}
+function renderPhotos() {
+  $('a-photo-preview').innerHTML = cur.photos.map((p, i) => `<div class="relative shrink-0 w-20 h-20"><img src="${p}" class="w-full h-full object-cover rounded-lg"><button type="button" onclick="cur.photos.splice(${i},1);renderPhotos()" class="absolute -top-1 -right-1 bg-red-600 text-white rounded-full w-5 h-5 text-xs">×</button></div>`).join('');
+}
+
+const status = n => n >= 9 ? { t:'Excelência', c:'text-emerald-600' } : n >= 7 ? { t:'Em desenvolvimento', c:'text-amber-600' } : { t:'Crítico', c:'text-red-600' };
+
+function finishAudit() {
+  if (Object.keys(cur.answers).length < 25) return alert(`Faltam ${25 - Object.keys(cur.answers).length} critérios.`);
+  const a = { id:Date.now(), synced:false, empresa:$('a-empresa').value.trim() || '—', auditor:$('a-auditor').value.trim() || '—', date:$('a-date').value,
+    area:$('a-area').value.trim() || '—', turno:$('a-turno').value, answers:{ ...cur.answers }, photos:[...cur.photos],
+    conclusao:$('a-concl').value.trim(), obs:{}, scores:{} };
+  SENSOS.forEach(s => {
+    a.obs[s.key] = $('obs-' + s.key).value.trim();
+    const sum = QUESTIONS[s.key].reduce((t, _, i) => t + a.answers[`${s.key}-${i}`], 0);
+    a.scores[s.key] = sum / 20 * 10;
+  });
+  a.total = SENSOS.reduce((t, s) => t + a.scores[s.key], 0) / 5;
+  a.status = status(a.total).t;
+  db.audits.unshift(a); saveDB(); showResult(a);
+  cur = { answers:{}, photos:[] }; ['a-area','a-concl'].forEach(i => $(i).value = ''); renderAudit(); renderPhotos();
+  sync(true);
+}
+
+// ===== RESULTADO =====
+function showResult(a) {
+  showScreen('result');
+  $('r-empresa').textContent = a.empresa || '';
+  $('r-header').textContent = `${a.area} · Turno ${a.turno || '—'} · ${a.auditor} · ${fmt(a.date)}`;
+  const st = status(a.total);
+  $('r-score').textContent = a.total.toFixed(1).replace('.', ','); $('r-score').className = 'text-5xl font-black my-1 ' + st.c;
+  $('r-status').textContent = st.t; $('r-status').className = 'font-bold ' + st.c;
+  const prev = db.audits.find(x => x.area === a.area && x.id < a.id);
+  $('r-table').innerHTML = SENSOS.map(s => {
+    const n = a.scores[s.key], t = status(n);
+    const v = prev ? (n - prev.scores[s.key]) : null;
+    return `<tr class="border-b"><td class="p-2 font-semibold">${s.name}</td><td class="p-2 font-bold">${n.toFixed(1)}</td><td class="p-2">${v === null ? '—' : (v > 0 ? '▲ +' : v < 0 ? '▼ ' : '= ') + v.toFixed(1)}</td><td class="p-2 font-bold ${t.c}">${t.t}</td></tr>`;
+  }).join('');
+  const crit = [];
+  SENSOS.forEach(s => QUESTIONS[s.key].forEach((q, i) => { const n = a.answers[`${s.key}-${i}`]; if (n <= 1) crit.push(`<li>[${s.name.split(' ')[0]}] ${esc(q)} <b>(nota ${n})</b></li>`); }));
+  $('r-crit').innerHTML = crit.length ? `<h3 class="font-bold mb-1">Pontos críticos (nota ≤ 1)</h3><ul class="list-disc pl-5 text-sm space-y-1">${crit.join('')}</ul>` : '';
+  const obs = SENSOS.filter(s => a.obs && a.obs[s.key]).map(s => `<p><b>${s.name.split(' ')[0]}:</b> ${esc(a.obs[s.key])}</p>`).join('');
+  $('r-obs').innerHTML = obs ? `<h3 class="font-bold mb-1">Observações</h3>${obs}` : '';
+  $('r-concl').innerHTML = a.conclusao ? `<h3 class="font-bold mb-1">Conclusão do auditor</h3><p>${esc(a.conclusao)}</p>` : '';
+  $('r-photos').innerHTML = (a.photos || []).map(p => `<img src="${p}" class="w-full h-32 object-cover rounded border">`).join('');
+  $('r-foot').textContent = `ID ${a.id} · Auditor: ${a.auditor} · ${fmt(a.date)}`;
+  radar(a.scores);
+}
+function radar(sc) {
+  const c = $('r-radar'), x = c.getContext('2d'), W = c.width, cx = W/2, R = W * .32;
+  const L = SENSOS.map(s => s.name.split(' ')[0]), ang = L.map((_, i) => -Math.PI/2 + i * 2 * Math.PI / 5);
+  x.clearRect(0, 0, W, W); x.lineWidth = 1; x.strokeStyle = '#cbd5e1';
+  [.25,.5,.75,1].forEach(l => { x.beginPath(); ang.forEach((a, i) => x[i ? 'lineTo' : 'moveTo'](cx + R*l*Math.cos(a), cx + R*l*Math.sin(a))); x.closePath(); x.stroke(); });
+  ang.forEach(a => { x.beginPath(); x.moveTo(cx, cx); x.lineTo(cx + R*Math.cos(a), cx + R*Math.sin(a)); x.stroke(); });
+  x.beginPath(); ang.forEach((a, i) => { const r = R * sc[SENSOS[i].key] / 10; x[i ? 'lineTo' : 'moveTo'](cx + r*Math.cos(a), cx + r*Math.sin(a)); });
+  x.closePath(); x.fillStyle = 'rgba(5,150,105,.25)'; x.fill(); x.strokeStyle = '#059669'; x.lineWidth = 2; x.stroke();
+  x.fillStyle = '#064e3b'; x.font = 'bold 11px sans-serif'; x.textAlign = 'center';
+  ang.forEach((a, i) => x.fillText(L[i], cx + (R+20)*Math.cos(a), cx + (R+20)*Math.sin(a) + 4));
+}
+function printReport() {
+  const old = document.title, a = db.audits.find(x => $('r-foot').textContent.includes(x.id));
+  if (a) document.title = `5S_${a.area.replace(/\W+/g, '_')}_${a.date}`;
+  print(); document.title = old;
+}
+
+// ===== HISTÓRICO =====
+function renderHistory() {
+  $('history-list').innerHTML = histDash() + '<p class="font-bold text-sm">Auditorias realizadas</p>';
+  $('history-list').innerHTML += db.audits.length ? db.audits.map(a => `
+    <div class="card flex justify-between items-center">
+      <div><p class="font-bold">${esc(a.area)}</p><p class="text-xs text-slate-500">${fmt(a.date)} · ${esc(a.auditor)} ${a.synced ? '☁️' : '⏳'}</p></div>
+      <div class="text-right"><p class="text-2xl font-black ${status(a.total).c}">${a.total.toFixed(1)}</p>
+      <button onclick="showResult(db.audits.find(x=>x.id===${a.id}))" class="text-xs text-emerald-700 font-bold underline">Ver laudo</button></div>
+    </div>`).join('') : '<p class="text-center text-slate-500">Nenhuma auditoria salva.</p>';
+}
+
+function histDash() {
+  const A = db.audits, n = A.length, avg = n ? A.reduce((t, a) => t + a.total, 0) / n : 0, last = n ? A[0].total : 0;
+  const bars = n ? SENSOS.map(s => { const m = A.reduce((t, a) => t + a.scores[s.key], 0) / n; return `<div class="mb-2 text-xs"><div class="flex justify-between"><span>${s.name}</span><b>${m.toFixed(1)}</b></div><div style="background:#e2e8f0;height:8px;border-radius:9999px;overflow:hidden"><div style="width:${m * 10}%;height:100%;background:${s.color}"></div></div></div>`; }).join('') : '<p class="text-xs text-slate-500">Nenhuma auditoria ainda.</p>';
+  const plc = PL_ST.map(s => { const c = db.plans.filter(p => planStatus(p) === s).length; return `<div class="rounded-lg p-2 bg-white border" ${s === 'Atrasado' && c ? 'style="border-color:#dc2626"' : ''}><p class="text-xs text-slate-500">${s}</p><p class="text-2xl font-black ${s === 'Atrasado' && c ? 'text-red-600' : ''}">${c}</p></div>`; }).join('');
+  return `<div class="card"><p class="font-extrabold mb-2">📊 Auditorias 5S</p>
+    <div class="grid grid-cols-2 gap-2 mb-3">
+      <div class="rounded-lg p-2 bg-white border"><p class="text-xs text-slate-500">Média geral (${n} auditorias)</p><p class="text-2xl font-black ${n ? status(avg).c : ''}">${n ? avg.toFixed(1) : '—'}</p></div>
+      <div class="rounded-lg p-2 bg-white border"><p class="text-xs text-slate-500">Última nota</p><p class="text-2xl font-black ${n ? status(last).c : ''}">${n ? last.toFixed(1) : '—'}</p></div>
+    </div>${bars}</div>` + gbDash() +
+    `<div class="card"><p class="font-extrabold mb-2">✅ Plano de Ação</p><div class="grid grid-cols-2 gap-2">${plc}</div></div>`;
+}
+
+// ===== LISTAS GENÉRICAS =====
+function buildForm(k) {
+  const L = LISTS[k];
+  $(L.p + '-form').innerHTML = '<div class="grid grid-cols-2 gap-3">' + L.f.map(([n, t, o, w]) => {
+    const id = `${L.p}-${n}`, sp = w ? ' col-span-2' : '';
+    if (t === 's') return `<select id="${id}" class="inp${sp}">${o.map(x => `<option>${x}</option>`).join('')}</select>`;
+    if (t === 'a') return `<textarea id="${id}" rows="3" placeholder="${o}" class="inp${sp}"></textarea>`;
+    if (t === 'd') return `<div class="${w ? 'col-span-2' : ''}"><label class="text-xs text-slate-500">${o}</label><input id="${id}" type="date" class="inp"></div>`;
+    return `<input id="${id}" type="${t === 'n' ? 'number' : 'text'}" placeholder="${o}" class="inp${sp}" ${t === 'n' ? 'value="1"' : ''}>`;
+  }).join('') + (L.photos ? `<div class="col-span-2"><label class="text-xs text-slate-500">📷 Fotos do problema (máx. 3)</label><input type="file" id="${L.p}-photos" accept="image/*" multiple class="block w-full text-sm mt-1"><div id="${L.p}-preview" class="flex gap-2 mt-2 overflow-x-auto"></div></div>` : '') + `</div><button type="button" onclick="add('${k}')" class="btn ${L.btn} mt-3">${k === 'gemba' ? '📤 Enviar' : '+ Adicionar'}</button>`;
+}
+async function addGbPhotos(e) {
+  for (const f of e.target.files) { if (gbPhotos.length >= 3) { toast('Máximo de 3 fotos'); break; } gbPhotos.push(await resize(f, 800, .5)); }
+  e.target.value = ''; renderGbPhotos();
+}
+function renderGbPhotos() {
+  $('gb-preview').innerHTML = gbPhotos.map((p, i) => `<div class="relative shrink-0 w-20 h-20"><img src="${p}" class="w-full h-full object-cover rounded-lg"><button type="button" onclick="gbPhotos.splice(${i},1);renderGbPhotos()" class="absolute -top-1 -right-1 bg-red-600 text-white rounded-full w-5 h-5 text-xs">×</button></div>`).join('');
+}
+function add(k) {
+  const L = LISTS[k], o = { id:Date.now(), criado:today(), synced:false };
+  L.f.forEach(([n]) => { o[n] = $(`${L.p}-${n}`).value.trim(); if (o[n].startsWith('—')) o[n] = ''; });
+  if (L.photos) o.fotos = [...gbPhotos];
+  if (k === 'gemba') { o.autor = cfg.nome; o.status = 'Planejando'; }
+  if (!o[L.req] && !(o.fotos && o.fotos.length)) return toast(L.photos ? 'Escreva o achado ou tire uma foto' : 'Preencha o campo principal');
+  db[k].unshift(o);
+  const plano = k === 'gemba' && autoPlan(o);
+  saveDB(); renderList(k);
+  if (L.photos) { gbPhotos = []; renderGbPhotos(); }
+  L.f.forEach(([n, t]) => { const e = $(`${L.p}-${n}`); if (t === 's') e.selectedIndex = 0; else e.value = t === 'n' ? 1 : ''; });
+  if (k === 'gemba') toast(plano ? 'Achado registrado ✅ e enviado ao Plano de Ação' : 'Achado registrado ✅');
+  sync(true);
+}
+function renderList(k) {
+  if (k === 'gemba') return renderGemba();
+  const L = LISTS[k];
+  $(L.p + '-list').innerHTML = db[k].length ? db[k].map(r => {
+    const late = k === 'plans' && isLate(r), bc = late ? 'border-red-600' : L.bc;
+    const st = k === 'plans' ? `<div class="flex items-center gap-2 mt-2"><span class="text-xs font-bold">Status:</span><select class="inp" style="width:auto" onchange="plStatus(${r.id},this.value)">${PL_ST.map(s => `<option ${r.status === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div>` : '';
+    return `<div class="bg-white rounded-xl shadow border-l-4 ${bc} p-3" ${late ? 'style="background:#fef2f2"' : ''}>
+      <div class="flex justify-between gap-2"><p class="font-bold">${esc(L.title(r))} ${r.synced ? '☁️' : '⏳'}</p>
+      <button onclick="del('${k}',${r.id})" class="text-red-500 text-xs font-bold">Excluir</button></div>
+      <p class="text-xs text-slate-600">${L.l1(r)}</p><p class="text-xs text-slate-600">${L.l2(r)}</p>
+      ${late ? `<p class="text-xs font-bold text-red-600 mt-1">⚠️ Prazo vencido há ${lateDays(r)} dia(s)</p>` : ''}
+      ${r.obs ? `<p class="text-xs text-slate-600 mt-1">📝 ${esc(r.obs)}</p>` : ''}${(r.fotos || []).length ? `<div class="flex gap-2 mt-2 overflow-x-auto">${r.fotos.map(p => `<img src="${p}" class="w-20 h-20 object-cover rounded-lg shrink-0">`).join('')}</div>` : ''}${st}
+    </div>`; }).join('') : '<p class="text-center text-sm text-slate-500">Nada registrado.</p>';
+}
+// ===== GEMBA: triagem, PIN e status =====
+let gbFilter = 'all', gbEdit = null, leaderUntil = 0;
+const hash = s => { let h = 5381; for (const c of String(s)) h = ((h << 5) + h + c.charCodeAt(0)) | 0; return String(h); };
+const isLeader = () => Date.now() < leaderUntil;
+function unlockLeader() {
+  if (!cfg.pin) { toast('Defina o PIN do líder em ⚙️'); return showScreen('config'); }
+  const p = prompt('PIN do líder:');
+  if (p === null) return;
+  if (hash(p.trim()) !== cfg.pin) return toast('PIN incorreto');
+  leaderUntil = Date.now() + 5 * 60000; renderGemba();
+}
+const GB_ST = [['Planejando','#0284c7','📝'],['Executando','#d97706','🔧'],['Finalizado','#059669','✅'],['Cancelado','#64748b','🚫']];
+function renderGemba() {
+  const open = r => !['Finalizado','Cancelado'].includes(r.status), g = db.gemba;
+  const F = { all:g }; GB_ST.forEach(([s]) => F[s] = g.filter(r => r.status === s));
+  const tabs = [['all','Todos'], ...GB_ST.map(([s, , i]) => [s, i + ' ' + s])];
+  const rows = [...F[gbFilter]];
+  if (gbFilter === 'all') rows.sort((a, b) => (b.grav === 'Alta' && open(b)) - (a.grav === 'Alta' && open(a)));
+  const L = isLeader();
+  $('gb-list').innerHTML =
+    `<div class="flex gap-2 flex-wrap mb-3">${tabs.map(([k, t]) => `<button onclick="gbFilter='${k}';renderGemba()" class="tab ${gbFilter === k ? 'on' : ''}">${t} (${F[k].length})</button>`).join('')}</div>` +
+    (L ? '' : `<button onclick="unlockLeader()" class="btn bg-white border mb-3">🔒 Área do líder</button>`) +
+    (rows.length ? rows.map(r => gbCard(r, L)).join('') : '<p class="text-center text-sm text-slate-500">Nada por aqui.</p>');
+}
+function gbCard(r, L) {
+  const done = r.status === 'Finalizado', canc = r.status === 'Cancelado', alta = r.grav === 'Alta' && !done && !canc;
+  const bc = done ? 'border-emerald-600' : canc ? 'border-slate-300' : alta ? 'border-red-600' : 'border-amber-500';
+  const ph = (r.fotos || []).map(p => `<img src="${p}" class="w-20 h-20 object-cover rounded-lg shrink-0">`).join('');
+  const dp = r.fotoDepois ? `<span class="text-xs font-bold self-center">➜</span><div class="shrink-0 text-center"><img src="${r.fotoDepois}" class="w-20 h-20 object-cover rounded-lg" style="border:2px solid #059669"><p class="text-xs text-emerald-700 font-bold">Depois</p></div>` : '';
+  let act = '';
+  if (L && gbEdit === r.id) {
+    act = `<div class="grid grid-cols-2 gap-2 mt-2">
+      <select id="ge-grav" class="inp"><option value="">Gravidade…</option>${['Baixa','Média','Alta'].map(x => `<option ${r.grav === x ? 'selected' : ''}>${x}</option>`).join('')}</select>
+      <input id="ge-local" class="inp" placeholder="Local" value="${esc(r.local)}">
+      <input id="ge-equip" class="inp" placeholder="Equipamento" value="${esc(r.equip)}">
+      <input id="ge-resp" class="inp" placeholder="Responsável" value="${esc(r.resp)}">
+      <input id="ge-acao" class="inp" placeholder="Ação" value="${esc(r.acao)}">
+      <button onclick="gbSave(${r.id})" class="btn bg-emerald-600 text-white">Salvar</button>
+      <button onclick="gbEdit=null;renderGemba()" class="btn bg-white border">Cancelar</button></div>`;
+  } else if (L) {
+    act = `<div class="grid grid-cols-2 gap-2 mt-2">${GB_ST.map(([s, c, i]) => `<button onclick="gbStatus(${r.id},'${s}')" class="btn text-sm" style="${r.status === s ? `background:${c};color:#fff` : 'background:#fff;border:1px solid #cbd5e1'}">${i} ${s}</button>`).join('')}
+      <button onclick="gbEdit=${r.id};renderGemba()" class="btn bg-white border text-sm">Detalhar</button>
+      <label class="btn bg-emerald-600 text-white text-sm">📷 Foto do depois<input type="file" accept="image/*" class="hidden" onchange="gbAfter(${r.id},this)"></label></div>`;
+  }
+  return `<div class="bg-white rounded-xl shadow border-l-4 ${bc} p-3 mb-2">
+    <div class="flex justify-between gap-2"><p class="font-bold">${esc(r.achado || r.obs || 'Problema com foto')} ${r.synced ? '☁️' : '⏳'}</p>
+    ${(!r.synced || L) ? `<button onclick="del('gemba',${r.id})" class="text-red-500 text-xs font-bold">Excluir</button>` : ''}</div>
+    <p class="text-xs text-slate-600">${esc(r.senso || 'Sem senso')} · ${fmt(r.criado)} · 👤 ${esc(r.solicitante || r.autor || '—')} · <b>${esc(r.status)}</b>${done && r.resolvidoEm ? ' em ' + fmt(r.resolvidoEm) : ''}${r.grav ? ' · Gravidade: ' + esc(r.grav) : ''}</p>
+    ${(r.setor || r.local || r.equip) ? `<p class="text-xs text-slate-600">🏭 ${[r.setor, r.local, r.equip].filter(Boolean).map(esc).join(' · ')}</p>` : ''}
+    ${r.obs2 ? `<p class="text-xs text-slate-600 mt-1">📝 ${esc(r.obs2)}</p>` : ''}
+    ${r.sugestao ? `<p class="text-xs text-emerald-700 mt-1">💡 ${esc(r.sugestao)}</p>` : ''}
+    ${(r.resp || r.acao) ? `<p class="text-xs text-slate-600">Resp: ${esc(r.resp)} · Ação: ${esc(r.acao)}</p>` : ''}
+    ${(ph || dp) ? `<div class="flex gap-2 mt-2 overflow-x-auto">${ph}${dp}</div>` : ''}${act}</div>`;
+}
+function gbDash() {
+  const g = db.gemba, n = g.length; if (!n) return '';
+  const cnt = s => g.filter(r => r.status === s).length;
+  const valid = n - cnt('Cancelado'), pct = valid ? Math.round(cnt('Finalizado') / valid * 100) : 0;
+  const dias = g.filter(r => r.status === 'Finalizado' && r.resolvidoEm && r.criado).map(r => (new Date(r.resolvidoEm) - new Date(r.criado)) / 864e5);
+  const med = dias.length ? (dias.reduce((a, b) => a + b, 0) / dias.length).toFixed(1).replace('.', ',') + ' dias' : '—';
+  const sets = {}; g.forEach(r => { const s = r.senso || 'Sem senso'; (sets[s] = sets[s] || { t:0, f:0 }).t++; if (r.status === 'Finalizado') sets[s].f++; });
+  return `<div class="card mb-3">
+    <p class="font-extrabold mb-2">📊 Painel de ações</p>
+    <div class="grid grid-cols-2 gap-2">${GB_ST.map(([s, c, i]) => `<div style="border-left:4px solid ${c}" class="rounded-lg p-2 bg-white border"><p class="text-xs text-slate-500">${i} ${s}</p><p class="text-2xl font-black" style="color:${c}">${cnt(s)}</p></div>`).join('')}</div>
+    <div style="background:#e2e8f0;height:10px;border-radius:9999px;overflow:hidden" class="mt-3"><div style="width:${pct}%;height:100%;background:#059669"></div></div>
+    <p class="text-xs text-slate-600 mt-1">${pct}% finalizado · ${n} ações · tempo médio: ${med}</p>
+    <p class="text-xs font-bold mt-3 mb-1">Por senso</p>
+    ${Object.entries(sets).sort((a, b) => b[1].t - a[1].t).map(([s, v]) => `<div class="flex justify-between text-xs"><span>${esc(s)}</span><span><b>${v.f}</b>/${v.t} finalizadas</span></div>`).join('')}
+  </div>`;
+}
+// Status do Gemba → espelha no Plano de Ação vinculado
+const PL_MAP = { Finalizado:'Concluído', Executando:'Em andamento', Planejando:'Não iniciado' };
+function gbStatus(id, s) {
+  const r = db.gemba.find(x => x.id === id); if (!r) return;
+  r.status = s; r.resolvidoEm = s === 'Finalizado' ? today() : '';
+  const p = db.plans.find(x => x.origem === r.id);
+  if (p && PL_MAP[s] && p.status !== PL_MAP[s]) {
+    p.status = PL_MAP[s]; p.synced = false; p.upd = true;
+    if (s === 'Finalizado') toast('Ação do Plano marcada como Concluída ✅');
+  }
+  gbTouch(r);
+}
+async function gbAfter(id, inp) {
+  const r = db.gemba.find(x => x.id === id); if (!r || !inp.files[0]) return;
+  r.fotoDepois = await resize(inp.files[0], 800, .5); gbTouch(r);
+}
+function gbTouch(r) { r.synced = false; r.upd = true; saveDB(); renderGemba(); sync(true); }
+function gbSave(id) {
+  const r = db.gemba.find(x => x.id === id); if (!r) return;
+  r.grav = $('ge-grav').value; r.local = $('ge-local').value.trim(); r.equip = $('ge-equip').value.trim(); r.resp = $('ge-resp').value.trim(); r.acao = $('ge-acao').value.trim();
+  if (autoPlan(r)) toast('Enviado ao Plano de Ação ✅');
+  gbEdit = null; gbTouch(r);
+}
+
+function del(k, id) { if (!confirm('Excluir este registro? (a cópia já sincronizada na planilha permanece)')) return; db[k] = db[k].filter(r => r.id !== id); saveDB(); renderList(k); }
+
+// ===== SINCRONIZAÇÃO (Google Sheets + Drive) =====
+const KINDS = ['audits','redtags','plans','gemba'];
+const pending = () => KINDS.reduce((t, k) => t + db[k].filter(r => !r.synced).length, 0);
+function updateBadge() { const n = pending(); $('syncBtn').textContent = n ? `🔄 Sincronizar (${n})` : '🔄 Sincronizar'; }
+
+async function sync(silent) {
+  if (!cfg.url) { if (!silent) toast('Configure o link em ⚙️'); return; }
+  if (!navigator.onLine) { if (!silent) toast('Sem internet. Sincroniza quando voltar.'); return; }
+  const payload = { token:cfg.token }, sent = {};
+  KINDS.forEach(k => {
+    const p = db[k].filter(r => !r.synced);
+    if (p.length) { sent[k] = p.map(r => r.id); payload[k] = p; }
+  });
+  if (!Object.keys(sent).length) { if (!silent) toast('Tudo sincronizado ✅'); return; }
+  try {
+    const r = await fetch(cfg.url, { method:'POST', body:JSON.stringify(payload) });
+    const j = await r.json(); if (!j.ok) throw new Error(j.error || 'erro');
+    KINDS.forEach(k => (sent[k] || []).forEach(id => { const x = db[k].find(y => y.id === id); if (x) { x.synced = true; x.upd = false; } }));
+    saveDB(); toast('Sincronizado ✅');
+  } catch (e) { toast('Falha ao sincronizar: ' + e.message); }
+}
+
+async function loadTeam() {
+  const box = $('team-list');
+  if (!cfg.url) { box.innerHTML = '<p class="text-center text-sm text-slate-500">Configure o link em ⚙️.</p>'; return; }
+  if (!navigator.onLine) { box.innerHTML = '<p class="text-center text-sm text-slate-500">Sem internet.</p>'; return; }
+  box.innerHTML = '<p class="text-center text-sm text-slate-500">Carregando…</p>';
+  try {
+    const r = await fetch(`${cfg.url}?action=list&token=${encodeURIComponent(cfg.token)}`), j = await r.json();
+    if (!j.ok) throw new Error(j.error);
+    box.innerHTML = j.audits.length ? j.audits.sort((a, b) => String(b.date).localeCompare(String(a.date))).map(a => `
+      <div class="card flex justify-between items-center">
+        <div><p class="font-bold">${esc(a.area)}</p><p class="text-xs text-slate-500">${fmt(a.date)} · ${esc(a.auditor)} · ${esc(a.turno)}</p>
+        <p class="text-xs text-slate-500">Seiri ${(+a.seiri).toFixed(1)} · Seiton ${(+a.seiton).toFixed(1)} · Seiso ${(+a.seiso).toFixed(1)} · Seiketsu ${(+a.seiketsu).toFixed(1)} · Shitsuke ${(+a.shitsuke).toFixed(1)}</p></div>
+        <div class="text-right"><p class="text-2xl font-black ${status(+a.total).c}">${(+a.total).toFixed(1)}</p><p class="text-xs font-bold ${status(+a.total).c}">${esc(a.status)}</p></div>
+      </div>`).join('') : '<p class="text-center text-sm text-slate-500">Nenhuma auditoria na planilha.</p>';
+  } catch (e) { box.innerHTML = `<p class="text-center text-sm text-red-600">Falha: ${esc(e.message)}</p>`; }
+}
+
+// ===== UTIL =====
+function exportData() {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(db)], { type:'application/json' }));
+  a.download = `marc5s_backup_${today()}.json`; a.click();
+}
+function clearAll() { if (!confirm('Apagar TODOS os dados deste celular?')) return; db = { audits:[], redtags:[], plans:[], gemba:[] }; saveDB(); showScreen('home'); }
+function setupInstall() {
+  let dp;
+  addEventListener('beforeinstallprompt', e => { e.preventDefault(); dp = e; $('installBtn').classList.remove('hidden'); });
+  $('installBtn').onclick = async () => { if (!dp) return; dp.prompt(); await dp.userChoice; $('installBtn').classList.add('hidden'); };
+}
+</script>
+</body>
+</html>
