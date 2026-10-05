@@ -208,6 +208,12 @@ body.offline .offline-bar{display:block}
     <input id="cfg-pin" type="password" inputmode="numeric" class="inp" placeholder="Deixe em branco para manter o atual">
     <button onclick="saveCfg()" class="btn bg-emerald-600 text-white">Salvar</button>
   </div>
+  <div class="card mt-4 text-center">
+    <p class="font-bold">📱 Acessar pelo celular</p>
+    <p class="text-xs text-slate-500">Aponte a câmera do celular para o QR Code</p>
+    <img src="qrcode.svg" alt="QR Code do app 5S Professor Flexo" class="mx-auto mt-3 mb-3 block" style="width:200px;height:200px">
+    <a href="qrcode.png" download="qrcode-5s-professor-flexo.png" class="text-sm font-bold" style="color:#0284c7">⬇️ Baixar QR Code</a>
+  </div>
   <p class="text-xs text-slate-400 text-center mt-4">5S Professor Flexo · v4.0</p>
 </section>
 
@@ -655,6 +661,8 @@ async function loadTeam() {
         <p class="text-xs text-slate-500">Seiri ${(+a.seiri).toFixed(1)} · Seiton ${(+a.seiton).toFixed(1)} · Seiso ${(+a.seiso).toFixed(1)} · Seiketsu ${(+a.seiketsu).toFixed(1)} · Shitsuke ${(+a.shitsuke).toFixed(1)}</p></div>
         <div class="text-right"><p class="text-2xl font-black ${status(+a.total).c}">${(+a.total).toFixed(1)}</p><p class="text-xs font-bold ${status(+a.total).c}">${esc(a.status)}</p></div>
       </div>`).join('') : '<p class="text-center text-sm text-slate-500">Nenhuma auditoria na planilha.</p>';
+    const G = j.gemba || [];
+    box.innerHTML += `<p class="font-bold text-sm mt-4">🔍 Achados do Gemba (${G.length})</p>` + (G.length ? G.sort((a, b) => String(b.criado).localeCompare(String(a.criado))).map(r => `<div class="card mt-2" style="border-left:4px solid ${r.status === 'Finalizado' ? '#059669' : r.grav === 'Alta' ? '#dc2626' : '#f59e0b'}"><p class="font-bold">${esc(r.achado || 'Problema com foto')}</p><p class="text-xs text-slate-600">${esc(r.senso || 'Sem senso')} · ${fmt(String(r.criado).slice(0, 10))} · 👤 ${esc(r.autor || '—')} · <b>${esc(r.status || 'Planejando')}</b>${r.grav ? ' · ' + esc(r.grav) : ''}</p>${(r.local || r.equip) ? `<p class="text-xs text-slate-600">🏭 ${[r.local, r.equip].filter(Boolean).map(esc).join(' · ')}</p>` : ''}${r.resp ? `<p class="text-xs text-slate-600">Resp: ${esc(r.resp)}</p>` : ''}</div>`).join('') : '<p class="text-xs text-slate-500">Nenhum achado na planilha.</p>');
   } catch (e) { box.innerHTML = `<p class="text-center text-sm text-red-600">Falha: ${esc(e.message)}</p>`; }
 }
 
